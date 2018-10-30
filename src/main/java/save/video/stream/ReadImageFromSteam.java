@@ -21,7 +21,7 @@ public class ReadImageFromSteam {
     public ReadImageFromSteam(String url, String smallFileName, int stepOneShot) {
         this.url = url;
         this.smallFileName = smallFileName;
-        this.stepOneShot = stepOneShot * 1_000;
+        this.stepOneShot = stepOneShot;
     }
 
     private void init() {
@@ -74,7 +74,6 @@ public class ReadImageFromSteam {
                         if (timestamp > timeShot) {
                             // Получаем стандартный BufferedImage
                             BufferedImage javaImage = Utils.videoPictureToImage(newPic);
-                            writeInImge(timestamp, javaImage);
                             video.writerImage(javaImage);
                             timeShot += stepOneShot;
                         }
