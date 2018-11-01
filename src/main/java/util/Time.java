@@ -1,0 +1,44 @@
+package util;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.ResourceBundle;
+
+public class Time {
+    private static final ResourceBundle properties = ServiceUtil.getProperties();
+    private static final SimpleDateFormat HH_MM = new SimpleDateFormat("HH:mm");
+
+    public static long getStepShotForNightOrDay(Format format, String camNameInProperties) {
+        String partOfDay;
+        if (isDay()) {
+            partOfDay = "day";
+        } else {
+            partOfDay = "night";
+        }
+
+        return Integer.valueOf(properties.getString(format.name + camNameInProperties + ".step.one.shot." + partOfDay + ".second"));
+    }
+
+    private static boolean isDay() {
+        String dayTime = properties.getString("day");
+        String nightTime = properties.getString("night");
+        String currentTime = currentTime();
+
+        return currentTime.compareTo(dayTime) == 1 && currentTime.compareTo(nightTime) == -1;
+    }
+
+    public static String currentTime() {
+        return HH_MM.format(Calendar.getInstance().getTime());
+    }
+
+    public enum Format {
+        Video("video."),
+        Image("image.");
+
+        public final String name;
+
+        Format(String name) {
+            this.name = name;
+        }
+    }
+}

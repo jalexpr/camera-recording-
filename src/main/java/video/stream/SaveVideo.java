@@ -1,4 +1,4 @@
-package save.video.stream;
+package video.stream;
 
 import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.ToolFactory;
@@ -7,22 +7,20 @@ import com.xuggle.xuggler.IRational;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
-public class SaveVideo {
+public class SaveVideo implements ISave {
     public static final String FORMAT_DEFAULT = ".mp4";
     public static final Integer WIDTH_DEFAULT = 1280;
     public static final Integer HEIGHT_DEFAULT = 720;
 
-    public static String outDir = "C:/temp";
-
-    private String smallFileName;
     private final IMediaWriter writer;
-    private long startTime;
+    private int count = 0;
 
-    public SaveVideo(String smallFileName) {
-        this.smallFileName = smallFileName;
-        startTime = System.nanoTime();
+    public SaveVideo(String outDir, String camName) {
+        String nowTime = formatNowTime.format(Calendar.getInstance().getTime());
+        String smallFileName = camName + "__" + nowTime;
 
         File outDirFile = new File(outDir);
         if (!outDirFile.exists()) {
@@ -33,13 +31,14 @@ public class SaveVideo {
         writer.addVideoStream(0, 0, ICodec.ID.CODEC_ID_MPEG4, IRational.make(1), WIDTH_DEFAULT, HEIGHT_DEFAULT);
     }
 
+    @Override
     public void writerImage(BufferedImage bgrScreen) {
         bgrScreen = convertToType(bgrScreen, BufferedImage.TYPE_3BYTE_BGR);
-        writer.encodeVideo(0, bgrScreen, (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
+        writer.encodeVideo(0, bgrScreen, count++, TimeUnit.SECONDS);
         writer.flush();
     }
 
-    public static BufferedImage convertToType(BufferedImage sourceImage, int targetType) {
+    private BufferedImage convertToType(BufferedImage sourceImage, int targetType) {
         BufferedImage image;
 
         if (sourceImage.getType() == targetType) {
@@ -51,6 +50,7 @@ public class SaveVideo {
         return image;
     }
 
+    @Override
     public void close() {
         writer.close();
     }
