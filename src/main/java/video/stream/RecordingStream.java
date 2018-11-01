@@ -7,8 +7,6 @@ import util.ServiceUtil;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -18,21 +16,12 @@ import static util.Time.Format.Video;
 import static util.Time.currentTime;
 import static util.Time.getStepShotForNightOrDay;
 
-public class RecordingStream {
+public class RecordingStream extends Thread{
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static ResourceBundle properties = ServiceUtil.getProperties();
-    private static final SimpleDateFormat YYYY_MM_DD = new SimpleDateFormat("yyyy_MM_dd");
-    private static final String PATH_FOLDER_VIDEO = "/video";
-    private static final String PATH_FOLDER_IMAGE = "/image";
-    private static final String PATH_FOLDER_IMAGE_SHOT = "/imageShot";
-    private static final long ONE_HOUR = 3_600;
 
-    private final long recordingTime;
     private final String url;
-    private final String videoOutDirFor;
-    private final String imageOutDirFor;
-    private final String imageShotOutDirFor;
     private final String camName;
     private final String camNameInProperties;
     private IContainer container;
@@ -40,6 +29,7 @@ public class RecordingStream {
     private IStreamCoder videoCoder;
     private boolean isStopping;
     private List<String> controlTimeShot = createControlTimeShot();
+    private boolean reInitVideo = false;
 
     public RecordingStream(String camNameInProperties) {
         log.info(camNameInProperties + ": Loading properties");
@@ -47,14 +37,6 @@ public class RecordingStream {
         this.camNameInProperties = camNameInProperties;
         this.url = properties.getString("propt." + camNameInProperties + ".url");
         this.camName = properties.getString("propt." + camNameInProperties + ".name");
-        double duration = Double.valueOf(properties.getString("propt." + camNameInProperties + ".recording.time.hour"));
-
-        String currentDayFolder = "/" + YYYY_MM_DD.format(Calendar.getInstance().getTime());
-        this.videoOutDirFor = properties.getString("path.save") + PATH_FOLDER_VIDEO + "/" + camName + currentDayFolder;
-        this.imageOutDirFor = properties.getString("path.save") + PATH_FOLDER_IMAGE + currentDayFolder;
-        this.imageShotOutDirFor = properties.getString("path.save") + PATH_FOLDER_IMAGE_SHOT + currentDayFolder;
-
-        this.recordingTime = new Double(ONE_HOUR * duration).longValue();
     }
 
     private void init() {
@@ -84,17 +66,18 @@ public class RecordingStream {
             throw new RuntimeException(String.format("could not open video decoder for container:\nurl = %s\ncamName = %s", url, camName));
     }
 
-    public void start() {
+    @Override
+    public void run() {
         init();
         IPacket packet = IPacket.make();
         long videoTimeShot = 0;
         long imageTimeShot = 0;
-        SaveVideo video = new SaveVideo(videoOutDirFor, camName);
-        SaveImage image = new SaveImage(imageOutDirFor, camName);
-        SaveImage imageByTimeShot = new SaveImage(imageShotOutDirFor, camName);
+        SaveVideo video = new SaveVideo(camName);
+        SaveImage image = new SaveImage(camName);
+        SaveImageShot imageByTimeShot = new SaveImageShot(camName);
 
         try {
-            while (container.readNextPacket(packet) >= 0 && !isStopping && videoTimeShot < recordingTime) {
+            while (container.readNextPacket(packet) >= 0 && !isStopping) {
                 if (packet.getStreamIndex() == videoStreamId) {
                     IVideoPicture picture = IVideoPicture.make(videoCoder.getPixelType(), videoCoder.getWidth(), videoCoder.getHeight());
                     int offset = 0;
@@ -108,11 +91,6 @@ public class RecordingStream {
                         if (picture.isComplete()) {
                             IVideoPicture newPic = picture;
                             long timestamp = picture.getTimeStamp() / 1_000_000;
-                            if (timestamp > videoTimeShot) {
-                                BufferedImage javaImage = Utils.videoPictureToImage(newPic);
-                                video.writerImage(javaImage);
-                                videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
-                            }
                             if (timestamp > imageTimeShot) {
                                 BufferedImage javaImage = Utils.videoPictureToImage(newPic);
                                 image.writerImage(javaImage);
@@ -122,6 +100,15 @@ public class RecordingStream {
                             if (controlTimeShot.contains(nowTime)) {
                                 BufferedImage javaImage = Utils.videoPictureToImage(newPic);
                                 imageByTimeShot.writerImage(javaImage);
+                            }
+                            if (timestamp > videoTimeShot) {
+                                if (reInitVideo) {
+                                    video.reInit();
+                                    reInitVideo = false;
+                                }
+                                BufferedImage javaImage = Utils.videoPictureToImage(newPic);
+                                video.writerImage(javaImage);
+                                videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
                             }
                         }
                     }
@@ -140,6 +127,9 @@ public class RecordingStream {
         }
     }
 
+    public void reInitVideo() {
+        reInitVideo = true;
+    }
     public void stopping() {
         isStopping = true;
     }
@@ -152,6 +142,4 @@ public class RecordingStream {
         }
         return timeShots;
     }
-
-
 }

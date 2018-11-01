@@ -13,7 +13,7 @@ public class UtilSaveVideo {
         startThread(threadRecordingStreams);
         while (true) {
             if (isAlive(threadRecordingStreams)) {
-                Thread.sleep(30_000);
+                Thread.sleep(60_000);
             } else {
                 stopping(threadRecordingStreams);
                 break;

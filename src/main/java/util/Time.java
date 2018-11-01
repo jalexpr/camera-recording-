@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 public class Time {
     private static final ResourceBundle properties = ServiceUtil.getProperties();
     private static final SimpleDateFormat HH_MM = new SimpleDateFormat("HH:mm");
+    private static final SimpleDateFormat YYYY_MM_DD = new SimpleDateFormat("yyyy_MM_dd");
 
     public static long getStepShotForNightOrDay(Format format, String camNameInProperties) {
         String partOfDay;
@@ -29,6 +30,10 @@ public class Time {
 
     public static String currentTime() {
         return HH_MM.format(Calendar.getInstance().getTime());
+    }
+
+    public static String currentDay() {
+        return YYYY_MM_DD.format(Calendar.getInstance().getTime());
     }
 
     public enum Format {
