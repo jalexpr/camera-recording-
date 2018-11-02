@@ -19,7 +19,7 @@ public class ThreadRecordingStream extends Thread {
     private RecordingStream recordingStream;
 
     public ThreadRecordingStream(String camNameInProperties) {
-        super.setName(camNameInProperties);
+        super.setName("Main class nameCam = " + camNameInProperties);
         this.camNameInProperties = camNameInProperties;
         this.duration = new Double(ONE_HOUR * Double.valueOf(properties.getString("propt." + camNameInProperties + ".recording.time.hour"))).longValue();
         this.backup = new Double(ONE_HOUR * Double.valueOf(properties.getString("backup.time.hour"))).longValue();

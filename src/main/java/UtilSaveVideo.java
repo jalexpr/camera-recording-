@@ -5,6 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static java.lang.Thread.sleep;
+
+
 public class UtilSaveVideo {
     private static ResourceBundle properties = ServiceUtil.getProperties();
 
@@ -13,7 +16,7 @@ public class UtilSaveVideo {
         startThread(threadRecordingStreams);
         while (true) {
             if (isAlive(threadRecordingStreams)) {
-                Thread.sleep(60_000);
+                sleep(60_000);
             } else {
                 stopping(threadRecordingStreams);
                 break;

@@ -1,4 +1,4 @@
-package video.stream;
+package video.save;
 
 import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;

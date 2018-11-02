@@ -3,7 +3,11 @@ package video.stream;
 import com.xuggle.xuggler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HelperThread;
 import util.ServiceUtil;
+import video.save.SaveImage;
+import video.save.SaveImageShot;
+import video.save.SaveVideo;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -11,17 +15,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static util.ServiceUtil.reReadProperties;
 import static util.Time.Format.Image;
 import static util.Time.Format.Video;
 import static util.Time.currentTime;
 import static util.Time.getStepShotForNightOrDay;
+import static video.stream.RecordingStream.test.TEST;
 
-public class RecordingStream extends Thread{
+public class RecordingStream extends Thread {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static ResourceBundle properties = ServiceUtil.getProperties();
 
-    private final String url;
+    private String url;
     private final String camName;
     private final String camNameInProperties;
     private IContainer container;
@@ -30,20 +36,23 @@ public class RecordingStream extends Thread{
     private boolean isStopping;
     private List<String> controlTimeShot = createControlTimeShot();
     private boolean reInitVideo = false;
+    private boolean isSaveVideo;
 
     public RecordingStream(String camNameInProperties) {
         log.info(camNameInProperties + ": Loading properties");
 
+        super.setName(camNameInProperties);
         this.camNameInProperties = camNameInProperties;
         this.url = properties.getString("propt." + camNameInProperties + ".url");
         this.camName = properties.getString("propt." + camNameInProperties + ".name");
+        this.isSaveVideo = Boolean.valueOf(properties.getString("video." + camNameInProperties + ".save"));
     }
 
-    private void init() {
+    private void reInit() {
         container = IContainer.make();
 
-        if (container.open(url, IContainer.Type.READ, null) < 0)
-            throw new IllegalArgumentException("could not open: " + url);
+        openUrlForContainer();
+
         int numStreams = container.getNumStreams();
         videoCoder = null;
         videoStreamId = -1;
@@ -64,54 +73,76 @@ public class RecordingStream extends Thread{
         // пытаемся открыть кодек
         if (videoCoder.open() < 0)
             throw new RuntimeException(String.format("could not open video decoder for container:\nurl = %s\ncamName = %s", url, camName));
+
+        log.info("ReInit");
+    }
+
+    private void openUrlForContainer() {
+        boolean isOpenUrl = false;
+        while (!isOpenUrl) {
+            if (container.open(url, IContainer.Type.READ, null) >= 0) {
+                log.info("open: " + url);
+                isOpenUrl = true;
+            } else {
+                log.warn("could not open: " + url);
+                HelperThread.sleepDefaultTime();
+                reReadProperties();
+                url = properties.getString("propt." + camNameInProperties + ".url");
+            }
+        }
     }
 
     @Override
     public void run() {
-        init();
+        reInit();
         IPacket packet = IPacket.make();
         long videoTimeShot = 0;
         long imageTimeShot = 0;
-        SaveVideo video = new SaveVideo(camName);
+        SaveVideo video = isSaveVideo ? new SaveVideo(camName) : new SaveVideo();
         SaveImage image = new SaveImage(camName);
         SaveImageShot imageByTimeShot = new SaveImageShot(camName);
 
         try {
-            while (container.readNextPacket(packet) >= 0 && !isStopping) {
-                if (packet.getStreamIndex() == videoStreamId) {
-                    IVideoPicture picture = IVideoPicture.make(videoCoder.getPixelType(), videoCoder.getWidth(), videoCoder.getHeight());
-                    int offset = 0;
-                    while (offset < packet.getSize()) {
-                        int bytesDecoded = videoCoder.decodeVideo(picture, packet, offset);
+            while (!isStopping) {
+                if (container.readNextPacket(packet) >= 0) {
+                    if (packet.getStreamIndex() == videoStreamId) {
+                        IVideoPicture picture = IVideoPicture.make(videoCoder.getPixelType(), videoCoder.getWidth(), videoCoder.getHeight());
+                        int offset = 0;
+                        while (offset < packet.getSize()) {
+                            int bytesDecoded = videoCoder.decodeVideo(picture, packet, offset);
 
-                        if (bytesDecoded < 0)
-                            throw new RuntimeException(String.format("got error decoding video in:\nurl = %s\ncamName = %s", url, camName));
-                        offset += bytesDecoded;
+                            if (bytesDecoded < 0)
+                                throw new RuntimeException(String.format("got error decoding video in:\nurl = %s\ncamName = %s", url, camName));
+                            offset += bytesDecoded;
 
-                        if (picture.isComplete()) {
-                            IVideoPicture newPic = picture;
-                            long timestamp = picture.getTimeStamp() / 1_000_000;
-                            if (timestamp > imageTimeShot) {
-                                BufferedImage javaImage = Utils.videoPictureToImage(newPic);
-                                image.writerImage(javaImage);
-                                imageTimeShot += getStepShotForNightOrDay(Image, camNameInProperties);
-                            }
-                            String nowTime = currentTime();
-                            if (controlTimeShot.contains(nowTime)) {
-                                BufferedImage javaImage = Utils.videoPictureToImage(newPic);
-                                imageByTimeShot.writerImage(javaImage);
-                            }
-                            if (timestamp > videoTimeShot) {
-                                if (reInitVideo) {
-                                    video.reInit();
-                                    reInitVideo = false;
+                            if (picture.isComplete()) {
+                                IVideoPicture newPic = picture;
+                                long timestamp = picture.getTimeStamp() / 1_000_000;
+                                if (timestamp > imageTimeShot) {
+                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
+                                    image.writerImage(javaImage);
+                                    imageTimeShot += getStepShotForNightOrDay(Image, camNameInProperties);
                                 }
-                                BufferedImage javaImage = Utils.videoPictureToImage(newPic);
-                                video.writerImage(javaImage);
-                                videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
+                                String nowTime = currentTime();
+                                if (controlTimeShot.contains(nowTime)) {
+                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
+                                    imageByTimeShot.writerImage(javaImage);
+                                }
+                                if (timestamp > videoTimeShot && isSaveVideo) {
+                                    if (reInitVideo) {
+                                        video.reInit();
+                                        reInitVideo = false;
+                                    }
+                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
+                                    video.writerImage(javaImage);
+                                    videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
+                                }
                             }
                         }
                     }
+                } else {
+                    log.warn("Not stream");
+                    reInit();
                 }
             }
             if (videoCoder != null) {
@@ -122,14 +153,19 @@ public class RecordingStream extends Thread{
                 container.close();
                 container = null;
             }
+        } catch (Throwable ex) {
+            log.error(camName + " stoped!", ex);
         } finally {
-            video.close();
+            if (isSaveVideo) {
+                video.close();
+            }
         }
     }
 
     public void reInitVideo() {
         reInitVideo = true;
     }
+
     public void stopping() {
         isStopping = true;
     }
@@ -137,9 +173,19 @@ public class RecordingStream extends Thread{
     private List<String> createControlTimeShot() {
         ResourceBundle properties = ServiceUtil.getProperties();
         List<String> timeShots = new LinkedList<>();
-        for(String timeShot : properties.getString("control.time.image.shot").split(";")) {
+        for (String timeShot : properties.getString("control.time.image.shot").split(";")) {
             timeShots.add(timeShot);
         }
         return timeShots;
+    }
+
+    enum test {
+        TEST;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(TEST);
+        System.out.println(TEST.toString());
+        System.out.println(TEST.name());
     }
 }

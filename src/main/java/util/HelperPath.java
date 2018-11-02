@@ -1,6 +1,7 @@
 package util;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ResourceBundle;
@@ -30,7 +31,7 @@ public class HelperPath {
 
     private static String crateDir(String camName, String folderMiddling) {
         String dir = properties.getString("path.save") + folderMiddling + "/" + camName + "/" + currentDay();
-        log.info(String.format("create dir path camName = %s. Dir path = %s", camName, dir));
+        log.info(String.format("Create dir path  = %s %S", dir, folderMiddling));
         mkdirs(dir);
         return dir;
     }

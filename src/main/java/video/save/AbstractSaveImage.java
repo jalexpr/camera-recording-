@@ -1,4 +1,4 @@
-package video.stream;
+package video.save;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +30,9 @@ public abstract class AbstractSaveImage implements ISave {
         if (!file.exists()) {
             try {
                 ImageIO.write(javaImage, FORMAT_DEFAULT, file);
-                log.info("Save image. Camera name = " + camName);
+                log.info("Save image.");
             } catch (IOException ex) {
-                log.warn("Not save image. Camera name = " + camName, ex);
+                log.warn("Not save image.", ex);
             }
         }
     }
