@@ -2,13 +2,13 @@ package video.save;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HelperThread;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
-
 public abstract class AbstractSaveImage implements ISave {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -34,6 +34,8 @@ public abstract class AbstractSaveImage implements ISave {
             } catch (IOException ex) {
                 log.warn("Not save image.", ex);
             }
+        } else {
+            HelperThread.sleep(60_000);
         }
     }
 

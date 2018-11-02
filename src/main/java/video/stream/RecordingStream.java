@@ -20,7 +20,6 @@ import static util.Time.Format.Image;
 import static util.Time.Format.Video;
 import static util.Time.currentTime;
 import static util.Time.getStepShotForNightOrDay;
-import static video.stream.RecordingStream.test.TEST;
 
 public class RecordingStream extends Thread {
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -177,15 +176,5 @@ public class RecordingStream extends Thread {
             timeShots.add(timeShot);
         }
         return timeShots;
-    }
-
-    enum test {
-        TEST;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(TEST);
-        System.out.println(TEST.toString());
-        System.out.println(TEST.name());
     }
 }

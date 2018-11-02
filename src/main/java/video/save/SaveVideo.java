@@ -98,21 +98,4 @@ public class SaveVideo implements ISave {
             log.error("SaveVideo not flush!", ex);
         }
     }
-
-    public static void main(String[] args) {
-        long start = System.nanoTime();
-        String str = "123456789012";
-        for(int i = 0; i < 1000000000; i++) {
-            Long num_C = new Long(str.substring(str.length() - 2, str.length() - 1));
-        }
-        System.out.println(System.nanoTime() - start);
-
-        start = System.nanoTime();
-        for(int i = 0; i < 1000000000; i++) {
-            Long num_C = new Long(str) % 100;
-        }
-        System.out.println(System.nanoTime() - start);
-
-        System.out.println(new Long(str.substring(str.length() - 2, str.length() - 1)) == new Long(str) % 100);
-    }
 }

@@ -10,6 +10,10 @@ public class HelperThread {
         sleep(Thread.currentThread(), 10_000);
     }
 
+    public static void sleep(long msTime) {
+        sleep(Thread.currentThread(), msTime);
+    }
+
     public static void sleep(Thread thread, long msTime) {
         try {
             log.warn("I am sleep to {} ms", msTime);
