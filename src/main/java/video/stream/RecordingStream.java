@@ -47,7 +47,7 @@ public class RecordingStream extends Thread {
         this.isSaveVideo = Boolean.valueOf(properties.getString("video." + camNameInProperties + ".save"));
     }
 
-    private void reInit() {
+    private void reInitUrl() {
         container = IContainer.make();
 
         openUrlForContainer();
@@ -93,7 +93,7 @@ public class RecordingStream extends Thread {
 
     @Override
     public void run() {
-        reInit();
+        reInitUrl();
         IPacket packet = IPacket.make();
         long videoTimeShot = 0;
         long imageTimeShot = 0;
@@ -141,7 +141,8 @@ public class RecordingStream extends Thread {
                     }
                 } else {
                     log.warn("Not stream");
-                    reInit();
+                    video.reInit();
+                    reInitUrl();
                 }
             }
             if (videoCoder != null) {
