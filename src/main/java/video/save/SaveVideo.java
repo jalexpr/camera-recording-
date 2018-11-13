@@ -22,20 +22,19 @@ public class SaveVideo implements ISave {
     private final String camName;
     private int count;
 
-    public SaveVideo() {
-        this.camName = "";
-    }
-
     public SaveVideo(String camName) {
         this.camName = camName;
-        reInit();
+        reInit(HelperPath.getOutDirPathVideo(camName));
     }
 
-    public void reInit() {
+    public SaveVideo(String camName, String subfolder) {
+        this.camName = camName;
+        reInit(HelperPath.getOutDirPathVideo(camName, subfolder));
+    }
+
+    public void reInit(String outDir) {
         try {
             close();
-
-            String outDir = HelperPath.getOutDirPathVideo(camName);
 
             String nowTime = formatNowTime.format(Calendar.getInstance().getTime());
             String smallFileName = camName + "__" + nowTime;

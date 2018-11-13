@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.ResourceBundle;
 
 public class Time {
-    private static final ResourceBundle properties = ServiceUtil.getProperties();
+    private static final ResourceBundle properties = HelperProperties.getProperties();
     private static final SimpleDateFormat HH_MM = new SimpleDateFormat("HH:mm");
     private static final SimpleDateFormat YYYY_MM_DD = new SimpleDateFormat("yyyy_MM_dd");
 

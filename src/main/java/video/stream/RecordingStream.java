@@ -3,11 +3,11 @@ package video.stream;
 import com.xuggle.xuggler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HelperProperties;
 import util.HelperThread;
-import util.ServiceUtil;
 import video.save.SaveImage;
+import video.save.SaveImageForVideo;
 import video.save.SaveImageShot;
-import video.save.SaveVideo;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -15,7 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static util.ServiceUtil.reReadProperties;
+import static util.HelperProperties.getCameraNameForDir;
+import static util.HelperProperties.reReadProperties;
 import static util.Time.Format.Image;
 import static util.Time.Format.Video;
 import static util.Time.currentTime;
@@ -24,7 +25,7 @@ import static util.Time.getStepShotForNightOrDay;
 public class RecordingStream extends Thread {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private static ResourceBundle properties = ServiceUtil.getProperties();
+    private static ResourceBundle properties = HelperProperties.getProperties();
 
     private String url;
     private final String camName;
@@ -43,7 +44,7 @@ public class RecordingStream extends Thread {
         super.setName(camNameInProperties);
         this.camNameInProperties = camNameInProperties;
         this.url = properties.getString("propt." + camNameInProperties + ".url");
-        this.camName = properties.getString("propt." + camNameInProperties + ".name");
+        this.camName = getCameraNameForDir(camNameInProperties);
         this.isSaveVideo = Boolean.valueOf(properties.getString("video." + camNameInProperties + ".save"));
     }
 
@@ -97,7 +98,8 @@ public class RecordingStream extends Thread {
         IPacket packet = IPacket.make();
         long videoTimeShot = 0;
         long imageTimeShot = 0;
-        SaveVideo video = isSaveVideo ? new SaveVideo(camName) : new SaveVideo();
+//        SaveVideo video = isSaveVideo ? new SaveVideo(camName) : new SaveVideo();
+        SaveImageForVideo imageVideo = new SaveImageForVideo(camName);
         SaveImage image = new SaveImage(camName);
         SaveImageShot imageByTimeShot = new SaveImageShot(camName);
 
@@ -116,24 +118,27 @@ public class RecordingStream extends Thread {
 
                             if (picture.isComplete()) {
                                 IVideoPicture newPic = picture;
+                                BufferedImage javaImage = Utils.videoPictureToImage(newPic);
                                 long timestamp = picture.getTimeStamp() / 1_000_000;
                                 if (timestamp > imageTimeShot) {
-                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
                                     image.writerImage(javaImage);
                                     imageTimeShot += getStepShotForNightOrDay(Image, camNameInProperties);
                                 }
                                 String nowTime = currentTime();
                                 if (controlTimeShot.contains(nowTime)) {
-                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
                                     imageByTimeShot.writerImage(javaImage);
                                 }
+//                                if (timestamp > videoTimeShot && isSaveVideo) {
+//                                    if (reInitVideo) {
+//                                        video.reInit();
+//                                        reInitVideo = false;
+//                                    }
+//                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
+//                                    video.writerImage(javaImage);
+//                                    videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
+//                                }
                                 if (timestamp > videoTimeShot && isSaveVideo) {
-                                    if (reInitVideo) {
-                                        video.reInit();
-                                        reInitVideo = false;
-                                    }
-                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
-                                    video.writerImage(javaImage);
+                                    imageVideo.writerImage(javaImage);
                                     videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
                                 }
                             }
@@ -141,10 +146,11 @@ public class RecordingStream extends Thread {
                     }
                 } else {
                     log.warn("Not stream");
-                    video.reInit();
+//                    video.reInit();
                     reInitUrl();
                 }
             }
+            log.info("Stop. Go out!");
             if (videoCoder != null) {
                 videoCoder.close();
                 videoCoder = null;
@@ -157,7 +163,7 @@ public class RecordingStream extends Thread {
             log.error(camName + " stoped!", ex);
         } finally {
             if (isSaveVideo) {
-                video.close();
+//                video.close();
             }
         }
     }
@@ -171,7 +177,7 @@ public class RecordingStream extends Thread {
     }
 
     private List<String> createControlTimeShot() {
-        ResourceBundle properties = ServiceUtil.getProperties();
+        ResourceBundle properties = HelperProperties.getProperties();
         List<String> timeShots = new LinkedList<>();
         for (String timeShot : properties.getString("control.time.image.shot").split(";")) {
             timeShots.add(timeShot);

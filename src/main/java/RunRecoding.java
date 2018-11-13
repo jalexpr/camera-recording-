@@ -1,16 +1,13 @@
-import util.ServiceUtil;
 import video.recording.ThreadRecordingStream;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import static java.lang.Thread.sleep;
+import static util.HelperProperties.getCamerasName;
 
 
-public class UtilSaveVideo {
-    private static ResourceBundle properties = ServiceUtil.getProperties();
-
+public class RunRecoding {
     public static void main(String a[]) throws Exception {
         List<ThreadRecordingStream> threadRecordingStreams = createThreadRecodingStreamList();
         startThread(threadRecordingStreams);
@@ -26,7 +23,7 @@ public class UtilSaveVideo {
 
     private static List<ThreadRecordingStream> createThreadRecodingStreamList() {
         List<ThreadRecordingStream> threadRecordingStreams = new LinkedList<>();
-        for (String camName : properties.getString("came.name").split(";")) {
+        for (String camName : getCamerasName()) {
             threadRecordingStreams.add(new ThreadRecordingStream(camName));
         }
         return threadRecordingStreams;

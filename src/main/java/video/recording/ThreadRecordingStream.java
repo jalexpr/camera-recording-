@@ -2,7 +2,8 @@ package video.recording;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.ServiceUtil;
+import util.HelperProperties;
+import util.HelperThread;
 import video.stream.RecordingStream;
 
 import java.util.ResourceBundle;
@@ -11,7 +12,7 @@ public class ThreadRecordingStream extends Thread {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private static final long ONE_HOUR = 3_600_000;
 
-    private static ResourceBundle properties = ServiceUtil.getProperties();
+    private static ResourceBundle properties = HelperProperties.getProperties();
 
     private final long duration;
     private final long backup;
@@ -26,29 +27,30 @@ public class ThreadRecordingStream extends Thread {
     }
 
     private void startRecording() {
-        long recording = 0;
-        log.info(getName() + ": Creating recording file");
-        recordingStream = new RecordingStream(camNameInProperties);
-
-        log.info(getName() + ": Stating recording");
-        recordingStream.start();
-
-        while (recording < duration) {
+        while (true) {
             try {
-                Thread.sleep(backup);
-                recording += backup;
-            } catch (InterruptedException ex) {
-                log.warn("camNameInProperties : camNameInProperties", ex);
+                log.info(getName() + ": Creating recording file");
+                recordingStream = new RecordingStream(camNameInProperties);
+
+                log.info(getName() + ": Stating recording");
+                recordingStream.start();
+                break;
+            } catch (Throwable ex) {
+                log.error("Restart recording", ex);
             }
-            recordingStream.reInitVideo();
         }
-        log.info(getName() + ": Finished recording");
-        recordingStream.stopping();
     }
 
     @Override
     public void run() {
-        startRecording();
+        long recording = 0;
+        while (recording < duration) {
+            startRecording();
+            HelperThread.sleep(backup);
+            recording += backup;
+            log.info(getName() + ": Finished recording");
+            recordingStream.stopping();
+        }
     }
 
     public void stopping() {

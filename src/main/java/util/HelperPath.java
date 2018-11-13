@@ -11,14 +11,27 @@ import static util.Time.currentDay;
 public class HelperPath {
     private static final Logger log = LoggerFactory.getLogger(HelperPath.class);
 
-    private static ResourceBundle properties = ServiceUtil.getProperties();
+    private static ResourceBundle properties = HelperProperties.getProperties();
 
     private static final String PATH_FOLDER_VIDEO = "/video";
+    private static final String PATH_FOLDER_IMAGE_FOR_VIDEO = "/imageForVideo";
     private static final String PATH_FOLDER_IMAGE = "/image";
     private static final String PATH_FOLDER_IMAGE_SHOT = "/imageShot";
 
     public static String getOutDirPathVideo(String camName) {
         return crateDir(camName, PATH_FOLDER_VIDEO);
+    }
+
+    public static String getOutDirPathVideo(String camName, String subfolder) {
+        return crateDir(camName, PATH_FOLDER_VIDEO, subfolder);
+    }
+
+    public static String getOutDirPathImageForVideo(String camName) {
+        return crateDir(camName, PATH_FOLDER_IMAGE_FOR_VIDEO);
+    }
+
+    public static String getOutDirPathImageForVideo(String camName, String subfolder) {
+        return crateDir(camName, PATH_FOLDER_IMAGE_FOR_VIDEO, subfolder);
     }
 
     public static String getOutDirPathImage(String camName) {
@@ -30,7 +43,11 @@ public class HelperPath {
     }
 
     private static String crateDir(String camName, String folderMiddling) {
-        String dir = properties.getString("path.save") + folderMiddling + "/" + camName + "/" + currentDay();
+        return crateDir(camName, folderMiddling, currentDay());
+    }
+
+    private static String crateDir(String camName, String folderMiddling, String subfolder) {
+        String dir = properties.getString("path.save") + folderMiddling + "/" + camName + "/" + subfolder;
         log.info(String.format("Create dir path  = %s %S", dir, folderMiddling));
         mkdirs(dir);
         return dir;

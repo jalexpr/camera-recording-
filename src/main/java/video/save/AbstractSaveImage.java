@@ -12,7 +12,7 @@ import java.util.Calendar;
 public abstract class AbstractSaveImage implements ISave {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    public static final String FORMAT_DEFAULT = "PNG";
+    public static final String FORMAT_DEFAULT = "JPEG";
     protected final String camName;
 
     public AbstractSaveImage(String camName) {
@@ -23,8 +23,7 @@ public abstract class AbstractSaveImage implements ISave {
 
     @Override
     public void writerImage(BufferedImage javaImage) {
-        String nowTime = formatNowTime.format(Calendar.getInstance().getTime());
-        String fileName = String.format("%s__%s.%s", camName, nowTime, FORMAT_DEFAULT.toLowerCase());
+        String fileName = getFileName();
 
         File file = new File(getImageOutDir(), fileName);
         if (!file.exists()) {
@@ -37,6 +36,11 @@ public abstract class AbstractSaveImage implements ISave {
         } else {
             HelperThread.sleep(60_000);
         }
+    }
+
+    protected String getFileName() {
+        String nowTime = formatNowTime.format(Calendar.getInstance().getTime());
+        return String.format("%s__%s.%s", camName, nowTime, FORMAT_DEFAULT.toLowerCase());
     }
 
     @Override

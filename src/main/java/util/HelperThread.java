@@ -7,7 +7,7 @@ public class HelperThread {
     private static Logger log = LoggerFactory.getLogger(HelperThread.class);
 
     public static void sleepDefaultTime() {
-        sleep(Thread.currentThread(), 60_000);
+        sleep(Thread.currentThread(), 10_000);
     }
 
     public static void sleep(long msTime) {
@@ -16,7 +16,7 @@ public class HelperThread {
 
     public static void sleep(Thread thread, long msTime) {
         try {
-            log.warn("I am sleep to {} ms", msTime);
+            log.info("I am sleep to {} ms", msTime);
             thread.sleep(msTime);
         } catch (InterruptedException e) {
             log.warn("I am not sleep!");
