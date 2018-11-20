@@ -20,25 +20,25 @@ public class SaveVideo implements ISave {
 
     private volatile IMediaWriter writer;
     private final String camName;
+    private final String smallFileName;
     private int count;
-
-    public SaveVideo(String camName) {
-        this.camName = camName;
-        reInit(HelperPath.getOutDirPathVideo(camName));
-    }
 
     public SaveVideo(String camName, String subfolder) {
         this.camName = camName;
+        String nowTime = formatNowTime.format(Calendar.getInstance().getTime());
+        this.smallFileName = camName + "__" + nowTime;
+        reInit(HelperPath.getOutDirPathVideo(camName, subfolder));
+    }
+
+    public SaveVideo(String camName, String subfolder, String smallFileName) {
+        this.camName = camName;
+        this.smallFileName = smallFileName;
         reInit(HelperPath.getOutDirPathVideo(camName, subfolder));
     }
 
     public void reInit(String outDir) {
         try {
             close();
-
-            String nowTime = formatNowTime.format(Calendar.getInstance().getTime());
-            String smallFileName = camName + "__" + nowTime;
-
             writer = ToolFactory.makeWriter(outDir + "/" + smallFileName + FORMAT_DEFAULT);
             writer.addVideoStream(0, 0, ICodec.ID.CODEC_ID_MPEG4, IRational.make(1), WIDTH_DEFAULT, HEIGHT_DEFAULT);
             count = 0;

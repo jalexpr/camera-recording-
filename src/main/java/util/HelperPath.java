@@ -17,6 +17,7 @@ public class HelperPath {
     private static final String PATH_FOLDER_IMAGE_FOR_VIDEO = "/imageForVideo";
     private static final String PATH_FOLDER_IMAGE = "/image";
     private static final String PATH_FOLDER_IMAGE_SHOT = "/imageShot";
+    private static final String PATH_FOLDER_ARCHIVE = "/archive";
 
     public static String getOutDirPathVideo(String camName) {
         return crateDir(camName, PATH_FOLDER_VIDEO);
@@ -58,5 +59,9 @@ public class HelperPath {
         if (!outDirFile.exists()) {
             outDirFile.mkdirs();
         }
+    }
+
+    public static String getOutDirPathArchive(String camName) {
+        return crateDir(camName, PATH_FOLDER_ARCHIVE, "");
     }
 }
