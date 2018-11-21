@@ -17,7 +17,7 @@ public class Time {
             partOfDay = "night";
         }
 
-        return Integer.valueOf(properties.getString(format.name + camNameInProperties + ".step.one.shot." + partOfDay + ".second"));
+        return Integer.valueOf(properties.getString(String.format("%s%s.step.one.shot.%s.second", format.name, camNameInProperties, partOfDay)));
     }
 
     private static boolean isDay() {
@@ -25,7 +25,7 @@ public class Time {
         String nightTime = properties.getString("night");
         String currentTime = currentTime();
 
-        return currentTime.compareTo(dayTime) == 1 && currentTime.compareTo(nightTime) == -1;
+        return currentTime.compareTo(dayTime) > 0 && currentTime.compareTo(nightTime) < 0;
     }
 
     public static String currentTime() {
