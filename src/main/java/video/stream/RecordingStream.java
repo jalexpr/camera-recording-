@@ -35,7 +35,6 @@ public class RecordingStream extends Thread {
     private IStreamCoder videoCoder;
     private boolean isStopping;
     private List<String> controlTimeShot = createControlTimeShot();
-    private boolean reInitVideo = false;
     private boolean isSaveVideo;
 
     public RecordingStream(String camNameInProperties) {
@@ -94,11 +93,19 @@ public class RecordingStream extends Thread {
 
     @Override
     public void run() {
+        if (isSaveVideo) {
+            saveShotAndVideo();
+        } else {
+            saveShot();
+        }
+    }
+
+    private void saveShotAndVideo() {
         reInitUrl();
         IPacket packet = IPacket.make();
         long videoTimeShot = 0;
         long imageTimeShot = 0;
-//        SaveVideo video = isSaveVideo ? new SaveVideo(camName) : new SaveVideo();
+
         SaveImageForVideo imageVideo = new SaveImageForVideo(camName);
         SaveImage image = new SaveImage(camName);
         SaveImageShot imageByTimeShot = new SaveImageShot(camName);
@@ -128,15 +135,6 @@ public class RecordingStream extends Thread {
                                 if (controlTimeShot.contains(nowTime)) {
                                     imageByTimeShot.writerImage(javaImage);
                                 }
-//                                if (timestamp > videoTimeShot && isSaveVideo) {
-//                                    if (reInitVideo) {
-//                                        video.reInit();
-//                                        reInitVideo = false;
-//                                    }
-//                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
-//                                    video.writerImage(javaImage);
-//                                    videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
-//                                }
                                 if (timestamp > videoTimeShot && isSaveVideo) {
                                     imageVideo.writerImage(javaImage);
                                     videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
@@ -146,7 +144,6 @@ public class RecordingStream extends Thread {
                     }
                 } else {
                     log.warn("Not stream");
-//                    video.reInit();
                     reInitUrl();
                 }
             }
@@ -161,15 +158,58 @@ public class RecordingStream extends Thread {
             }
         } catch (Throwable ex) {
             log.error(camName + " stoped!", ex);
-        } finally {
-            if (isSaveVideo) {
-//                video.close();
-            }
         }
     }
 
-    public void reInitVideo() {
-        reInitVideo = true;
+    private void saveShot() {
+        try {
+            while (!isStopping) {
+                reInitUrl();
+                IPacket packet = IPacket.make();
+
+                SaveImage image = new SaveImage(camName);
+                SaveImageShot imageByTimeShot = new SaveImageShot(camName);
+
+                boolean isSaved = false;
+                while (!isSaved) {
+                    if (container.readNextPacket(packet) >= 0) {
+                        if (packet.getStreamIndex() == videoStreamId) {
+                            IVideoPicture picture = IVideoPicture.make(videoCoder.getPixelType(), videoCoder.getWidth(), videoCoder.getHeight());
+                            int offset = 0;
+                            while (offset < packet.getSize()) {
+                                int bytesDecoded = videoCoder.decodeVideo(picture, packet, offset);
+
+                                if (bytesDecoded < 0)
+                                    throw new RuntimeException(String.format("got error decoding video in:\nurl = %s\ncamName = %s", url, camName));
+                                offset += bytesDecoded;
+
+                                if (picture.isComplete()) {
+                                    IVideoPicture newPic = picture;
+                                    BufferedImage javaImage = Utils.videoPictureToImage(newPic);
+
+                                    image.writerImage(javaImage);
+                                    isSaved = true;
+
+                                    String nowTime = currentTime().substring(0, 3) + "00"; // костыль
+                                    if (controlTimeShot.contains(nowTime)) {
+                                        imageByTimeShot.writerImage(javaImage);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        log.warn("Not stream");
+                        reInitUrl();
+                    }
+                }
+
+                close();
+                HelperThread.sleep(getStepShotForNightOrDay(Image, camNameInProperties) * 1_000);
+            }
+            close();
+        } catch (Throwable ex) {
+            log.error(camName + " stoped!", ex);
+        }
     }
 
     public void stopping() {
@@ -183,5 +223,17 @@ public class RecordingStream extends Thread {
             timeShots.add(timeShot);
         }
         return timeShots;
+    }
+
+    private void close() {
+        log.info("Stop. Go out!");
+        if (videoCoder != null) {
+            videoCoder.close();
+            videoCoder = null;
+        }
+        if (container != null) {
+            container.close();
+            container = null;
+        }
     }
 }
