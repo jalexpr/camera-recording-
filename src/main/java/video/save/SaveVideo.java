@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SaveVideo implements ISave {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    public static final String FORMAT_DEFAULT = ".mp4";
+    public static final String FORMAT_VIDEO_DEFAULT = ".mp4";
     public static final Integer WIDTH_DEFAULT = 1280;
     public static final Integer HEIGHT_DEFAULT = 720;
 
@@ -39,7 +39,7 @@ public class SaveVideo implements ISave {
     public void reInit(String outDir) {
         try {
             close();
-            writer = ToolFactory.makeWriter(outDir + "/" + smallFileName + FORMAT_DEFAULT);
+            writer = ToolFactory.makeWriter(outDir + "/" + smallFileName + FORMAT_VIDEO_DEFAULT);
             writer.addVideoStream(0, 0, ICodec.ID.CODEC_ID_MPEG4, IRational.make(1), WIDTH_DEFAULT, HEIGHT_DEFAULT);
             count = 0;
         } catch (Throwable ex) {

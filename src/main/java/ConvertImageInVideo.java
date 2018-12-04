@@ -8,11 +8,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import static util.HelperProperties.getCameraNameForDir;
 import static util.HelperProperties.getCamerasName;
 import static util.Time.currentDay;
-import static video.save.SaveVideo.FORMAT_DEFAULT;
+import static video.save.SaveVideo.FORMAT_VIDEO_DEFAULT;
 
 public class ConvertImageInVideo {
     public static void main(String[] args) {
@@ -25,7 +26,7 @@ public class ConvertImageInVideo {
         String camName = getCameraNameForDir(camNameInProperties);
         File dirs = new File(HelperPath.getOutDirPathImageForVideo(camName, ""));
         List<String> dirVideo = getListVideoName(camName);
-        for(File dir : dirs.listFiles()) {
+        for(File dir : Objects.requireNonNull(dirs.listFiles())) {
             if (dir.getName().equals(currentDay())) {
                 continue;
             }
@@ -62,8 +63,8 @@ public class ConvertImageInVideo {
         File dir = new File(HelperPath.getOutDirPathVideo(camName, ""));
         for(File file : dir.listFiles()) {
             String name = file.getName();
-            if(name.endsWith(FORMAT_DEFAULT)) {
-                listVideoName.add(file.getName().replace(FORMAT_DEFAULT, ""));
+            if(name.endsWith(FORMAT_VIDEO_DEFAULT)) {
+                listVideoName.add(file.getName().replace(FORMAT_VIDEO_DEFAULT, ""));
             }
         }
 

@@ -131,10 +131,6 @@ public class RecordingStream extends Thread {
                                     image.writerImage(javaImage);
                                     imageTimeShot += getStepShotForNightOrDay(Image, camNameInProperties);
                                 }
-                                String nowTime = currentTime();
-                                if (controlTimeShot.contains(nowTime)) {
-                                    imageByTimeShot.writerImage(javaImage);
-                                }
                                 if (timestamp > videoTimeShot && isSaveVideo) {
                                     imageVideo.writerImage(javaImage);
                                     videoTimeShot += getStepShotForNightOrDay(Video, camNameInProperties);
