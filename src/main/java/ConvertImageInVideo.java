@@ -1,3 +1,5 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.HelperPath;
 import video.save.SaveVideo;
 
@@ -30,6 +32,9 @@ public class ConvertImageInVideo {
             if (dir.getName().equals(currentDay())) {
                 continue;
             }
+
+            Logger logger = LoggerFactory.getLogger(ConvertImageInVideo.class);
+            logger.info("Convert dir = " + dir);
 
             String videoFileName = String.format("%s_%s", camName, dir.getName());
             if (dirVideo.contains(videoFileName)) {

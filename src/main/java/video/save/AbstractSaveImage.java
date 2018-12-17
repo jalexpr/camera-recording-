@@ -29,7 +29,7 @@ public abstract class AbstractSaveImage implements ISave {
         if (!file.exists()) {
             try {
                 ImageIO.write(javaImage, FORMAT_DEFAULT, file);
-                log.info("Save image.");
+                log.info("Save image. Name = " + fileName);
             } catch (IOException ex) {
                 log.warn("Not save image.", ex);
             }
