@@ -7,14 +7,14 @@ import java.util.List;
 import static util.HelperProperties.getCameraNameForDir;
 import static util.Time.currentDay;
 
-public class DeleteImage {
+public class PartialDeleteImage {
     public static void main(String[] args) {
 //        for (String camNameInProperties : getCamerasName()) {
 //        convertImageInVideo("cam2");
 //        }
     }
 
-    private static void convertImageInVideo(String camNameInProperties) {
+    protected static void partialDelete(String camNameInProperties) {
         String camName = getCameraNameForDir(camNameInProperties);
         File dirs = new File(HelperPath.getOutDirPathImageForVideo(camName, ""));
         for (File dir : dirs.listFiles()) {
