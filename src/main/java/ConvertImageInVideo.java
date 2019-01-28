@@ -46,18 +46,21 @@ public class ConvertImageInVideo {
 
             SaveVideo video = new SaveVideo(camName, "", videoFileName);
             int count = 3;
-            for (File imageFile : files) {
-                if (++count % 2 == 0 || count < 3_500 || count > 14_804) {
-                    try {
-                        BufferedImage image = ImageIO.read(imageFile);
-                        video.writerImage(image);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+            try {
+                for (File imageFile : files) {
+                    if (++count % 2 == 0 || count < 3_500 || count > 14_804) {
+                        try {
+                            BufferedImage image = ImageIO.read(imageFile);
+                            video.writerImage(image);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex.getMessage() + " File name = " + imageFile.getAbsolutePath());
+                        }
                     }
-                }
 //            imageFile.delete();
+                }
+            } finally {
+                video.close();
             }
-            video.close();
 //            dir.delete();
         }
     }
