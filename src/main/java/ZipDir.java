@@ -18,7 +18,7 @@ import static util.HelperProperties.getCamerasName;
 import static util.Time.currentDay;
 
 public class ZipDir {
-    private static final String EXPANSION_ARCHIVE = ".rar";
+    public static final String EXPANSION_ARCHIVE = ".rar";
 
     public static void main(String[] args) throws IOException {
         for (String camNameInProperties : getCamerasName()) {
@@ -35,23 +35,36 @@ public class ZipDir {
                 continue;
             }
 
-            String dirName = String.format("%s_%s", camName, dir.getName());
+            String dirName = getDirNameByCamName(camName, dir.getName());
             if (dirArchive.contains(dirName)) {
                 continue;
             }
 
-            ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(getOutDirPathArchive(camName) + dirName + EXPANSION_ARCHIVE));
-            zout.setLevel(BEST_SPEED);
-
-            if(dir.isDirectory()) {
-                for (File file : Objects.requireNonNull(dir.listFiles())) {
-                    addZipFile(zout, file);
-                }
-            } else {
-                addZipFile(zout, dir);
-            }
+            applyZip(camName, dir);
 //            dir.delete();
         }
+    }
+
+    public static void applyZip(String camName, File originalDir) throws IOException {
+        ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(getFileArchiveByCamName(camName, originalDir.getName())));
+        zout.setLevel(BEST_SPEED);
+
+        if(originalDir.isDirectory()) {
+            for (File file : Objects.requireNonNull(originalDir.listFiles())) {
+                addZipFile(zout, file);
+            }
+        } else {
+            addZipFile(zout, originalDir);
+        }
+        zout.close();
+    }
+
+    public static File getFileArchiveByCamName(String camName, String originalDir) {
+        return new File(getOutDirPathArchive(camName) + getDirNameByCamName(camName, originalDir) + ZipDir.EXPANSION_ARCHIVE);
+    }
+
+    private static String getDirNameByCamName(String camName, String originalDir) {
+        return String.format("%s_%s", camName, originalDir);
     }
 
     private static void addZipFile(ZipOutputStream zout, File file) throws IOException {
