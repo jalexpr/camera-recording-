@@ -1,12 +1,14 @@
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HelperPath;
+import util.HelperThread;
 import video.save.SaveVideo;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,11 +26,22 @@ public class ConvertImageInVideo {
         }
     }
 
+    public static void convertEveryDay() {
+        while (true) {
+            if (LocalDateTime.now().getHour() == 0) {
+                for (String camNameInProperties : getCamerasName()) {
+                    convertImageInVideo(camNameInProperties);
+                }
+            }
+            HelperThread.sleep(3600_000);
+        }
+    }
+
     private static void convertImageInVideo(String camNameInProperties) {
         String camName = getCameraNameForDir(camNameInProperties);
         File dirs = new File(HelperPath.getOutDirPathImageForVideo(camName, ""));
         List<String> dirVideo = getListVideoName(camName);
-        for(File dir : Objects.requireNonNull(dirs.listFiles())) {
+        for (File dir : Objects.requireNonNull(dirs.listFiles())) {
             if (dir.getName().equals(currentDay())) {
                 continue;
             }
@@ -69,9 +82,9 @@ public class ConvertImageInVideo {
         List<String> listVideoName = new LinkedList<>();
 
         File dir = new File(HelperPath.getOutDirPathVideo(camName, ""));
-        for(File file : dir.listFiles()) {
+        for (File file : dir.listFiles()) {
             String name = file.getName();
-            if(name.endsWith(FORMAT_VIDEO_DEFAULT)) {
+            if (name.endsWith(FORMAT_VIDEO_DEFAULT)) {
                 listVideoName.add(file.getName().replace(FORMAT_VIDEO_DEFAULT, ""));
             }
         }

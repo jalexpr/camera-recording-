@@ -9,6 +9,10 @@ import static util.HelperProperties.getCamerasName;
 
 public class RunRecoding {
     public static void main(String a[]) throws Exception {
+        Thread threadConvert = new Thread(ConvertImageInVideo::convertEveryDay);
+        threadConvert.setName(ConvertImageInVideo.class.getName());
+        threadConvert.start();
+
         List<ThreadRecordingStream> threadRecordingStreams = createThreadRecodingStreamList();
         startThread(threadRecordingStreams);
         while (true) {
@@ -16,6 +20,7 @@ public class RunRecoding {
                 sleep(60_000);
             } else {
                 stopping(threadRecordingStreams);
+                threadConvert.stop();
                 break;
             }
         }
