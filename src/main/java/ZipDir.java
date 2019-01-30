@@ -21,6 +21,10 @@ public class ZipDir {
     public static final String EXPANSION_ARCHIVE = ".rar";
 
     public static void main(String[] args) throws IOException {
+        runZip();
+    }
+
+    public static void runZip() throws IOException {
         for (String camNameInProperties : getCamerasName()) {
             zipDir(camNameInProperties);
         }
@@ -81,7 +85,7 @@ public class ZipDir {
         fis.close();
     }
 
-    public static List<String> getListArchiveFileName(String camName) {
+    private static List<String> getListArchiveFileName(String camName) {
         List<String> listVideoName = new LinkedList<>();
 
         File dir = new File(HelperPath.getOutDirPathArchive(camName));

@@ -9,7 +9,7 @@ import static util.HelperProperties.getCamerasName;
 
 public class RunRecoding {
     public static void main(String a[]) throws Exception {
-        Thread threadConvert = new Thread(ConvertImageInVideo::convertEveryDay);
+        Thread threadConvert = new Thread(RunRecoding::convertArchiveAndDeleted);
         threadConvert.setName(ConvertImageInVideo.class.getName());
         threadConvert.start();
 
@@ -23,6 +23,16 @@ public class RunRecoding {
                 threadConvert.stop();
                 break;
             }
+        }
+    }
+
+    private static void convertArchiveAndDeleted() {
+        try {
+            ConvertImageInVideo.convertEveryDay();
+            ZipDir.runZip();
+            DeleteImageWithCheckZip.runDeleteImageWithCheckZip();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
         }
     }
 
