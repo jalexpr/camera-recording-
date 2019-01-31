@@ -21,12 +21,10 @@ import static ru.vg.video.save.SaveVideo.FORMAT_VIDEO_DEFAULT;
 
 public class ConvertImageInVideo {
     public static void main(String[] args) {
-        for (String camNameInProperties : getCamerasName()) {
-            convertImageInVideo(camNameInProperties);
-        }
+        runConvert();
     }
 
-    public static void convertEveryDay() {
+    public static void runConvert() {
         for (String camNameInProperties : getCamerasName()) {
             convertImageInVideo(camNameInProperties);
         }

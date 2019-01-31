@@ -34,7 +34,7 @@ public class RunRecoding {
         try {
             while (true) {
                 if (LocalDateTime.now().getHour() == 0) {
-                    ConvertImageInVideo.convertEveryDay();
+                    ConvertImageInVideo.runConvert();
                     ZipDir.runZip();
                     DeleteImageWithCheckZip.runDeleteImageWithCheckZip();
                 }
