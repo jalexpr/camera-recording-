@@ -1,8 +1,8 @@
-package video.save;
+package ru.vg.video.save;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HelperThread;
+import ru.vg.util.HelperThread;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

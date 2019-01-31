@@ -1,4 +1,4 @@
-package video.save;
+package ru.vg.video.save;
 
 import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.ToolFactory;
@@ -6,7 +6,7 @@ import com.xuggle.xuggler.ICodec;
 import com.xuggle.xuggler.IRational;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HelperPath;
+import ru.vg.util.HelperPath;
 
 import java.awt.image.BufferedImage;
 import java.util.Calendar;

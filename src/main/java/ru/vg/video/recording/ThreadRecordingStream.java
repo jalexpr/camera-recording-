@@ -1,10 +1,10 @@
-package video.recording;
+package ru.vg.video.recording;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HelperProperties;
-import util.HelperThread;
-import video.stream.RecordingStream;
+import ru.vg.util.HelperProperties;
+import ru.vg.util.HelperThread;
+import ru.vg.video.stream.RecordingStream;
 
 import java.util.ResourceBundle;
 

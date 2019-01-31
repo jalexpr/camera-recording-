@@ -1,4 +1,6 @@
-import util.HelperPath;
+package ru.vg;
+
+import ru.vg.util.HelperPath;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,11 +13,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static java.util.zip.Deflater.BEST_SPEED;
-import static util.HelperPath.getOutDirPathArchive;
-import static util.HelperPath.getOutDirPathImageForVideo;
-import static util.HelperProperties.getCameraNameForDir;
-import static util.HelperProperties.getCamerasName;
-import static util.Time.currentDay;
+import static ru.vg.util.HelperPath.getOutDirPathArchive;
+import static ru.vg.util.HelperPath.getOutDirPathImageForVideo;
+import static ru.vg.util.HelperProperties.getCameraNameForDir;
+import static ru.vg.util.HelperProperties.getCamerasName;
+import static ru.vg.util.Time.currentDay;
 
 public class ZipDir {
     public static final String EXPANSION_ARCHIVE = ".rar";

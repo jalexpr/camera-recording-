@@ -1,6 +1,6 @@
-package video.save;
+package ru.vg.video.save;
 
-import util.HelperPath;
+import ru.vg.util.HelperPath;
 
 import java.util.Calendar;
 

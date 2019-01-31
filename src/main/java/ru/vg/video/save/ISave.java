@@ -1,4 +1,4 @@
-package video.save;
+package ru.vg.video.save;
 
 import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;

@@ -1,11 +1,13 @@
+package ru.vg;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static util.HelperPath.getOutDirPathImageForVideo;
-import static util.HelperProperties.getCameraNameForDir;
-import static util.HelperProperties.getCamerasName;
-import static util.Time.currentDay;
+import static ru.vg.util.HelperPath.getOutDirPathImageForVideo;
+import static ru.vg.util.HelperProperties.getCameraNameForDir;
+import static ru.vg.util.HelperProperties.getCamerasName;
+import static ru.vg.util.Time.currentDay;
 
 public class DeleteImageWithCheckZip {
     public static void main(String[] args) throws IOException {

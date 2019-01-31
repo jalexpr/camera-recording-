@@ -1,23 +1,23 @@
+package ru.vg;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HelperPath;
-import util.HelperThread;
-import video.save.SaveVideo;
+import ru.vg.util.HelperPath;
+import ru.vg.video.save.SaveVideo;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static util.HelperProperties.getCameraNameForDir;
-import static util.HelperProperties.getCamerasName;
-import static util.Time.currentDay;
-import static video.save.SaveVideo.FORMAT_VIDEO_DEFAULT;
+import static ru.vg.util.HelperProperties.getCameraNameForDir;
+import static ru.vg.util.HelperProperties.getCamerasName;
+import static ru.vg.util.Time.currentDay;
+import static ru.vg.video.save.SaveVideo.FORMAT_VIDEO_DEFAULT;
 
 public class ConvertImageInVideo {
     public static void main(String[] args) {
@@ -27,13 +27,8 @@ public class ConvertImageInVideo {
     }
 
     public static void convertEveryDay() {
-        while (true) {
-            if (LocalDateTime.now().getHour() == 0) {
-                for (String camNameInProperties : getCamerasName()) {
-                    convertImageInVideo(camNameInProperties);
-                }
-            }
-            HelperThread.sleep(3600_000);
+        for (String camNameInProperties : getCamerasName()) {
+            convertImageInVideo(camNameInProperties);
         }
     }
 

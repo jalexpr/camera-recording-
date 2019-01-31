@@ -1,4 +1,4 @@
-package util;
+package ru.vg.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class HelperProperties {
 
     public static synchronized void reReadProperties() {
         try {
-            properties = new PropertyResourceBundle(new FileInputStream("src/main/resources/properties.properties"));
+            properties = new PropertyResourceBundle(new FileInputStream("properties.properties"));
         } catch (IOException ex) {
             log.warn("I am not READING properties", ex);
         }

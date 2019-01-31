@@ -1,4 +1,4 @@
-package util;
+package ru.vg.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.ResourceBundle;
 
-import static util.Time.currentDay;
+import static ru.vg.util.Time.currentDay;
 
 public class HelperPath {
     private static final Logger log = LoggerFactory.getLogger(HelperPath.class);

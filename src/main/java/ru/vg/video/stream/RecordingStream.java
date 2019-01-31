@@ -1,13 +1,13 @@
-package video.stream;
+package ru.vg.video.stream;
 
 import com.xuggle.xuggler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HelperProperties;
-import util.HelperThread;
-import video.save.SaveImage;
-import video.save.SaveImageForVideo;
-import video.save.SaveImageShot;
+import ru.vg.util.HelperProperties;
+import ru.vg.util.HelperThread;
+import ru.vg.video.save.SaveImage;
+import ru.vg.video.save.SaveImageForVideo;
+import ru.vg.video.save.SaveImageShot;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -15,12 +15,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static util.HelperProperties.getCameraNameForDir;
-import static util.HelperProperties.reReadProperties;
-import static util.Time.Format.Image;
-import static util.Time.Format.Video;
-import static util.Time.currentTime;
-import static util.Time.getStepShotForNightOrDay;
+import static ru.vg.util.HelperProperties.getCameraNameForDir;
+import static ru.vg.util.HelperProperties.reReadProperties;
+import static ru.vg.util.Time.Format.Image;
+import static ru.vg.util.Time.Format.Video;
+import static ru.vg.util.Time.currentTime;
+import static ru.vg.util.Time.getStepShotForNightOrDay;
 
 public class RecordingStream extends Thread {
     private final Logger log = LoggerFactory.getLogger(getClass());

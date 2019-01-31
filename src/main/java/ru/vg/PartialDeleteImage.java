@@ -1,11 +1,12 @@
-import util.HelperPath;
+package ru.vg;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import static util.HelperProperties.getCameraNameForDir;
-import static util.Time.currentDay;
+import static ru.vg.util.HelperPath.getOutDirPathImageForVideo;
+import static ru.vg.util.HelperProperties.getCameraNameForDir;
+import static ru.vg.util.Time.currentDay;
 
 public class PartialDeleteImage {
     public static void main(String[] args) {
@@ -16,7 +17,7 @@ public class PartialDeleteImage {
 
     protected static void partialDelete(String camNameInProperties) {
         String camName = getCameraNameForDir(camNameInProperties);
-        File dirs = new File(HelperPath.getOutDirPathImageForVideo(camName, ""));
+        File dirs = new File(getOutDirPathImageForVideo(camName, ""));
         for (File dir : dirs.listFiles()) {
             if (dir.getName().equals(currentDay())) {
                 continue;

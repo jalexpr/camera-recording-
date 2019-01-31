@@ -1,10 +1,14 @@
-import video.recording.ThreadRecordingStream;
+package ru.vg;
 
+import ru.vg.util.HelperThread;
+import ru.vg.video.recording.ThreadRecordingStream;
+
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static util.HelperProperties.getCamerasName;
+import static ru.vg.util.HelperProperties.getCamerasName;
 
 
 public class RunRecoding {
@@ -28,9 +32,14 @@ public class RunRecoding {
 
     private static void convertArchiveAndDeleted() {
         try {
-            ConvertImageInVideo.convertEveryDay();
-            ZipDir.runZip();
-            DeleteImageWithCheckZip.runDeleteImageWithCheckZip();
+            while (true) {
+                if (LocalDateTime.now().getHour() == 0) {
+                    ConvertImageInVideo.convertEveryDay();
+                    ZipDir.runZip();
+                    DeleteImageWithCheckZip.runDeleteImageWithCheckZip();
+                }
+                HelperThread.sleep(3600_000);
+            }
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }

@@ -1,6 +1,6 @@
-package video.save;
+package ru.vg.video.save;
 
-import util.HelperPath;
+import ru.vg.util.HelperPath;
 
 public class SaveImage extends AbstractSaveImage {
     public SaveImage(String camName) {

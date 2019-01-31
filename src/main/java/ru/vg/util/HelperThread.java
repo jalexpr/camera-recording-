@@ -1,4 +1,4 @@
-package util;
+package ru.vg.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
