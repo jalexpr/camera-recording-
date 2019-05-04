@@ -14,8 +14,6 @@ import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static ru.vg.util.HelperProperties.getCameraNameForDir;
 import static ru.vg.util.HelperProperties.reReadProperties;
@@ -28,7 +26,6 @@ public class RecordingStream extends Thread {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static ResourceBundle properties = HelperProperties.getProperties();
-    private ExecutorService executor = Executors.newFixedThreadPool(3);
     private String url;
     private final String camName;
     private final String camNameInProperties;
@@ -98,14 +95,14 @@ public class RecordingStream extends Thread {
     @Override
     public void run() {
         if (isSaveVideo) {
-            executor.submit(this::saveShotAndVideo);
+            saveShotAndVideo();
         }
 
         if (isSaveShotByTime) {
-            executor.submit(this::saveShot);
+            saveShot();
         }
 
-        executor.submit(this::saveDailyShot);
+        saveDailyShot();
     }
 
     private void saveShotAndVideo() {

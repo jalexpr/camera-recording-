@@ -3,7 +3,6 @@ package ru.vg.video.save;
 import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.xuggler.ICodec;
-import com.xuggle.xuggler.IRational;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vg.util.HelperPath;
@@ -12,11 +11,14 @@ import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
+import static ru.vg.util.HelperProperties.getProperties;
+
 public class SaveVideo implements ISave {
     private final Logger log = LoggerFactory.getLogger(getClass());
     public static final String FORMAT_VIDEO_DEFAULT = ".mp4";
-    public static final Integer WIDTH_DEFAULT = 1280;
-    public static final Integer HEIGHT_DEFAULT = 720;
+    private static final Integer WIDTH_DEFAULT = 1280;
+    private static final Integer HEIGHT_DEFAULT = 720;
+    private static final int step = Integer.valueOf(getProperties().getString("video.step.save.image"));
 
     private volatile IMediaWriter writer;
     private final String camName;
@@ -40,10 +42,10 @@ public class SaveVideo implements ISave {
         try {
             close();
             writer = ToolFactory.makeWriter(outDir + "/" + smallFileName + FORMAT_VIDEO_DEFAULT);
-            writer.addVideoStream(0, 0, ICodec.ID.CODEC_ID_MPEG4, IRational.make(1), WIDTH_DEFAULT, HEIGHT_DEFAULT);
+            writer.addVideoStream(0, 0, ICodec.ID.CODEC_ID_MPEG4, WIDTH_DEFAULT, HEIGHT_DEFAULT);
             count = 0;
         } catch (Throwable ex) {
-            log.error("SaveVideo stopped!", ex);
+            log.error("Save video stopped!" + ex.getMessage(), ex);
         }
     }
 
@@ -51,12 +53,12 @@ public class SaveVideo implements ISave {
     public void writerImage(BufferedImage bgrScreen) {
         try {
             bgrScreen = convertToType(bgrScreen, BufferedImage.TYPE_3BYTE_BGR);
-            writer.encodeVideo(0, bgrScreen, count++, TimeUnit.SECONDS);
+            writer.encodeVideo(0, bgrScreen, step * count++, TimeUnit.MILLISECONDS);
             flush();
         } catch (NullPointerException | IllegalArgumentException ex) {
             log.error("", ex);
         } catch (Throwable ex) {
-            log.error("SaveVideo stopped!", ex);
+            log.error("Save video stopped!" + ex.getMessage(), ex);
         }
     }
 

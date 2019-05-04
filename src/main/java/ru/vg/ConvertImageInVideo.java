@@ -16,7 +16,6 @@ import java.util.Objects;
 
 import static ru.vg.util.HelperProperties.getCameraNameForDir;
 import static ru.vg.util.HelperProperties.getCamerasName;
-import static ru.vg.util.Time.currentDay;
 import static ru.vg.video.save.SaveVideo.FORMAT_VIDEO_DEFAULT;
 
 public class ConvertImageInVideo {
@@ -35,9 +34,9 @@ public class ConvertImageInVideo {
         File dirs = new File(HelperPath.getOutDirPathImageForVideo(camName, ""));
         List<String> dirVideo = getListVideoName(camName);
         for (File dir : Objects.requireNonNull(dirs.listFiles())) {
-            if (dir.getName().equals(currentDay())) {
-                continue;
-            }
+//            if (dir.getName().equals(currentDay())) {
+//                continue;
+//            }
 
             Logger logger = LoggerFactory.getLogger(ConvertImageInVideo.class);
             logger.info("Convert dir = " + dir);
