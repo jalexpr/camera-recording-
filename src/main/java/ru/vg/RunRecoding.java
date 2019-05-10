@@ -1,8 +1,14 @@
 package ru.vg;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.vg.util.HelperThread;
 import ru.vg.video.recording.ThreadRecordingStream;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +18,13 @@ import static ru.vg.util.HelperProperties.getCamerasName;
 
 
 public class RunRecoding {
-    public static void main(String a[]) throws Exception {
+    private static Logger log = LoggerFactory.getLogger(RunRecoding.class);
+
+    public static void main(String[] args) throws Exception {
+        Thread runForSleep = new Thread(() -> RunRecoding.runForSleep(Integer.valueOf(args[0]), args[1]));
+        runForSleep.setName("run-for-sleep");
+        runForSleep.start();
+
         Thread threadConvert = new Thread(RunRecoding::convertArchiveAndDeleted);
         threadConvert.setName(ConvertImageInVideo.class.getName());
         threadConvert.start();
@@ -26,6 +38,26 @@ public class RunRecoding {
                 stopping(threadRecordingStreams);
                 threadConvert.stop();
                 break;
+            }
+        }
+    }
+
+    private static void runForSleep(Integer hour, String cmd) {
+        while (true) {
+            LocalDateTime time = LocalDateTime.now();
+            if (hour != time.getHour()) {
+                log.info("Еще рано, ушел в сон");
+                HelperThread.sleep(5 * 60 * 1_000);
+            } else {
+                try {
+                    log.info("Ушел в сон");
+                    Process p = Runtime.getRuntime().exec("cmd /c start \"\" " + cmd);
+                    System.out.println("out " + getLines(p.getInputStream()));
+                    System.err.println("out err " + getLines(p.getErrorStream()));
+                    HelperThread.sleep(60 * 60 * 1_000);
+                } catch (IOException ex) {
+                    log.warn(ex.getMessage(), ex);
+                }
             }
         }
     }
@@ -72,5 +104,19 @@ public class RunRecoding {
         for (ThreadRecordingStream thread : threadRecordingStreams) {
             thread.stopping();
         }
+    }
+
+    private static String getLines(InputStream stream) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            while (reader.ready()) {
+                sb.append(reader.readLine());
+            }
+            return sb.toString();
+        } catch (IOException ex) {
+            log.info("Не удалось прочить вывод ", ex);
+        }
+        return sb.toString();
     }
 }
