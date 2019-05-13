@@ -50,6 +50,7 @@ public class RunRecoding {
                 HelperThread.sleep(5 * 60 * 1_000);
             } else {
                 try {
+                    ConvertImageInVideo.runConvert();
                     log.info("Ушел в сон");
                     Process p = Runtime.getRuntime().exec("cmd /c start \"\" " + cmd);
                     System.out.println("out " + getLines(p.getInputStream()));
