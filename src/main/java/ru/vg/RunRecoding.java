@@ -2,6 +2,7 @@ package ru.vg;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vg.util.HelperProperties;
 import ru.vg.util.HelperThread;
 import ru.vg.video.recording.ThreadRecordingStream;
 
@@ -12,12 +13,14 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import static java.lang.Thread.sleep;
 import static ru.vg.util.HelperProperties.getCamerasName;
 
 
 public class RunRecoding {
+    private static ResourceBundle properties = HelperProperties.getProperties();
     private static Logger log = LoggerFactory.getLogger(RunRecoding.class);
 
     public static void main(String[] args) throws Exception {
@@ -46,12 +49,12 @@ public class RunRecoding {
         while (true) {
             LocalDateTime time = LocalDateTime.now();
             if (hour != time.getHour()) {
-                log.info("Еще рано, ушел в сон");
+                log.info("Еще рано, поток ушел в сон");
                 HelperThread.sleep(5 * 60 * 1_000);
             } else {
                 try {
-                    ConvertImageInVideo.runConvert();
-                    log.info("Ушел в сон");
+//                    ConvertImageInVideo.runConvert();
+                    log.info("Попытка ПК уйти в сон");
                     Process p = Runtime.getRuntime().exec("cmd /c start \"\" " + cmd);
                     System.out.println("out " + getLines(p.getInputStream()));
                     System.err.println("out err " + getLines(p.getErrorStream()));

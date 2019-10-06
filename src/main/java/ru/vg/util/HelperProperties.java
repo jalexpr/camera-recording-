@@ -9,7 +9,7 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 public class HelperProperties {
-    private static final Logger log = LoggerFactory.getLogger(HelperPath.class);
+    private static final Logger log = LoggerFactory.getLogger(HelperProperties.class);
     private volatile static ResourceBundle properties;
 
     public static synchronized ResourceBundle getProperties() {
@@ -33,5 +33,8 @@ public class HelperProperties {
 
     public static synchronized String getCameraNameForDir(String camNameInProperties) {
         return getProperties().getString("propt." + camNameInProperties + ".name");
+    }
+    public static synchronized Boolean isConvertOnlyCurrentDay() {
+        return Boolean.valueOf(getProperties().getString("is.convert.only.current.day"));
     }
 }

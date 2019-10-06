@@ -3,7 +3,6 @@ package ru.vg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vg.util.HelperPath;
-import ru.vg.util.HelperProperties;
 import ru.vg.video.save.SaveVideo;
 
 import javax.imageio.ImageIO;
@@ -13,53 +12,57 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ResourceBundle;
 
-import static ru.vg.util.HelperPath.getOutDirPathImageForVideo;
-import static ru.vg.util.HelperProperties.*;
-import static ru.vg.util.Time.currentDay;
+import static ru.vg.util.HelperProperties.getCameraNameForDir;
+import static ru.vg.util.HelperProperties.getCamerasName;
 import static ru.vg.video.save.SaveVideo.FORMAT_VIDEO_DEFAULT;
 
-public class ConvertImageInVideo {
-    private static Logger log = LoggerFactory.getLogger(ConvertImageInVideo.class);
-
-    private static ResourceBundle properties = HelperProperties.getProperties();
-
+public class ConvertImageInVideoAllFolder {
+    private static Logger logger = LoggerFactory.getLogger(ConvertImageInVideoAllFolder.class);
     public static void main(String[] args) {
         runConvert();
     }
 
     public static void runConvert() {
-        log.info("Начиную конвертацию");
         for (String camNameInProperties : getCamerasName()) {
-            String nameDirByCame = getCameraNameForDir(camNameInProperties);
-            convertImageInVideo(camNameInProperties, getOutDirPathImageForVideo(nameDirByCame, ""));
-//            convertImageInVideo(camNameInProperties, getOutDirPathImage(nameDirByCame, ""));
+            convertImageInVideo(camNameInProperties);
         }
     }
 
-    private static void convertImageInVideo(String camNameInProperties, String outDirPathImageForVideo) {
-        log.info("camNameInProperties = {} | outDirPathImageForVideo  = {} ", camNameInProperties, outDirPathImageForVideo);
+    private static void convertImageInVideo(String camNameInProperties) {
         String camName = getCameraNameForDir(camNameInProperties);
-        File dirs = new File(outDirPathImageForVideo);
+        File baseDir = new File(HelperPath.getOutDirPathImageForVideo(camName, ""));
         List<String> dirVideo = getListVideoName(camName);
-        for (File dir : dirs.listFiles()) {
-            if (isConvertOnlyCurrentDay() && !dir.getName().equals(currentDay())) {
-                continue;
-            }
+        File[] dirs = baseDir.listFiles();
+        if (dirs == null || dirs.length == 0) {
+            return;
+        }
 
-            log.info("Convert dir = " + dir);
+        String homes;
+        if (camName.equals("cam_4")) {
+            homes = " дома 13.2 и 13.1";
+        } else if (camName.equals("cam_7")) {
+            homes = " дома 13, 12 и 5";
+        } else {
+            homes = " ";
+        }
 
-            String homes;
-            if (camName.equals("cam_4")) {
-                homes = " дома 13.2 и 13.1";
-            } else if (camName.equals("cam_7")) {
-                homes = " дома 13, 12 и 5";
-            } else {
-                homes = " ";
-            }
+        String nameVideo = new StringBuilder()
+                .append(dirs[0].getName())
+                .append("-")
+                .append(dirs[dirs.length - 1].getName().substring(8))
+                .append(" ЖК Видный город")
+                .append(homes).toString();
+        nameVideo = nameVideo.replace("_", ".");
 
-            String videoFileName =  dir.getName() + " ЖК Видный город " + homes;
+        SaveVideo video = new SaveVideo(camName, "", nameVideo);
+        for (File dir : dirs) {
+//            if (dir.getName().equals(currentDay())) {
+//                continue;
+//            }
+            logger.info("Convert dir = " + dir);
+
+            String videoFileName = String.format("%s_%s", camName, dir.getName());
             if (dirVideo.contains(videoFileName)) {
                 continue;
             }
@@ -67,25 +70,25 @@ public class ConvertImageInVideo {
             List<File> files = Arrays.asList(dir.listFiles());
             files.sort((file1, file2) -> file1.getName().compareTo(file1.getName()));
 
-            SaveVideo video = new SaveVideo(camName, "", videoFileName);
             int count = 3;
             try {
                 for (File imageFile : files) {
-//                    if (++count % 2 == 0 || count < 3_500 || count > 14_804) {
+                    if (++count % 2 == 0 || count < 3_500 || count > 14_804) {
                         try {
                             BufferedImage image = ImageIO.read(imageFile);
                             video.writerImage(image);
                         } catch (IOException ex) {
                             throw new RuntimeException(ex.getMessage() + " File name = " + imageFile.getAbsolutePath());
                         }
-//                    }
+                    }
 //            imageFile.delete();
                 }
             } finally {
-                video.close();
+//                video.close();
             }
 //            dir.delete();
         }
+        video.close();
     }
 
     private static List<String> getListVideoName(String camName) {
