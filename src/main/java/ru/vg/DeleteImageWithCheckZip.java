@@ -7,7 +7,6 @@ import java.util.Arrays;
 import static ru.vg.util.HelperPath.getOutDirPathImageForVideo;
 import static ru.vg.util.HelperProperties.getCameraNameForDir;
 import static ru.vg.util.HelperProperties.getCamerasName;
-import static ru.vg.util.Time.currentDay;
 
 public class DeleteImageWithCheckZip {
     public static void main(String[] args) throws IOException {
@@ -19,9 +18,9 @@ public class DeleteImageWithCheckZip {
             String camName = getCameraNameForDir(camNameInProperties);
             File dirs = new File(getOutDirPathImageForVideo(camName, ""));
             for (File dir : dirs.listFiles()) {
-                if (dir.getName().equals(currentDay())) {
-                    continue;
-                }
+//                if (dir.getName().equals(currentDay())) {
+//                    continue;
+//                }
 
                 File fileArchive = ZipDir.getFileArchiveByCamName(camName, dir.getName());
                 if (!fileArchive.exists()) {

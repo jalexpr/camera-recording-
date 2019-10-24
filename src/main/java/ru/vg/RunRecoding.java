@@ -2,6 +2,8 @@ package ru.vg;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Service;
 import ru.vg.util.HelperProperties;
 import ru.vg.util.HelperThread;
 import ru.vg.video.recording.ThreadRecordingStream;
@@ -18,15 +20,22 @@ import java.util.ResourceBundle;
 import static java.lang.Thread.sleep;
 import static ru.vg.util.HelperProperties.getCamerasName;
 
-
-public class RunRecoding {
+@Service
+public class RunRecoding implements InitializingBean {
     private static ResourceBundle properties = HelperProperties.getProperties();
     private static Logger log = LoggerFactory.getLogger(RunRecoding.class);
 
-    public static void main(String[] args) throws Exception {
-        Thread runForSleep = new Thread(() -> RunRecoding.runForSleep(Integer.valueOf(args[0]), args[1]));
-        runForSleep.setName("run-for-sleep");
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Thread runForSleep = new Thread(() -> RunRecoding.main(new String[]{}));
+        runForSleep.setName("run-recoding");
         runForSleep.start();
+    }
+
+    public static void main(String[] args) {
+//        Thread runForSleep = new Thread(() -> RunRecoding.runForSleep(Integer.valueOf(args[0]), args[1]));
+//        runForSleep.setName("run-for-sleep");
+//        runForSleep.start();
 
         Thread threadConvert = new Thread(RunRecoding::convertArchiveAndDeleted);
         threadConvert.setName(ConvertImageInVideo.class.getName());
@@ -36,7 +45,11 @@ public class RunRecoding {
         startThread(threadRecordingStreams);
         while (true) {
             if (isAlive(threadRecordingStreams)) {
-                sleep(60_000);
+                try {
+                    sleep(60_000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             } else {
                 stopping(threadRecordingStreams);
                 threadConvert.stop();
