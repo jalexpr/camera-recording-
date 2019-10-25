@@ -9,7 +9,6 @@ import ru.vg.video.save.SaveImage;
 import ru.vg.video.save.SaveImageForVideo;
 import ru.vg.video.save.SaveImageShot;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,7 +62,6 @@ public class RecordingStream extends Thread {
             if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_VIDEO) {
                 videoStreamId = i;
                 videoCoder = coder;
-                Toolkit.getDefaultToolkit().getScreenSize();
                 break;
             }
         }

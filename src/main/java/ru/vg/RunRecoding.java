@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
-import ru.vg.util.HelperProperties;
 import ru.vg.util.HelperThread;
 import ru.vg.video.recording.ThreadRecordingStream;
 
@@ -15,47 +14,43 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import static java.lang.Thread.sleep;
 import static ru.vg.util.HelperProperties.getCamerasName;
 
 @Service
 public class RunRecoding implements InitializingBean {
-    private static ResourceBundle properties = HelperProperties.getProperties();
     private static Logger log = LoggerFactory.getLogger(RunRecoding.class);
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        Thread runForSleep = new Thread(() -> RunRecoding.main(new String[]{}));
-        runForSleep.setName("run-recoding");
-        runForSleep.start();
+    public void afterPropertiesSet() {
+        RunRecoding.main(new String[]{});
     }
 
     public static void main(String[] args) {
-//        Thread runForSleep = new Thread(() -> RunRecoding.runForSleep(Integer.valueOf(args[0]), args[1]));
-//        runForSleep.setName("run-for-sleep");
-//        runForSleep.start();
+        Thread runForSleep = new Thread(() -> {
+            Thread threadConvert = new Thread(RunRecoding::convertArchiveAndDeleted);
+            threadConvert.setName(ConvertImageInVideo.class.getName());
+            threadConvert.start();
 
-        Thread threadConvert = new Thread(RunRecoding::convertArchiveAndDeleted);
-        threadConvert.setName(ConvertImageInVideo.class.getName());
-        threadConvert.start();
-
-        List<ThreadRecordingStream> threadRecordingStreams = createThreadRecodingStreamList();
-        startThread(threadRecordingStreams);
-        while (true) {
-            if (isAlive(threadRecordingStreams)) {
-                try {
-                    sleep(60_000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            List<ThreadRecordingStream> threadRecordingStreams = createThreadRecodingStreamList();
+            startThread(threadRecordingStreams);
+            while (true) {
+                if (isAlive(threadRecordingStreams)) {
+                    try {
+                        sleep(60_000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    stopping(threadRecordingStreams);
+                    threadConvert.stop();
+                    break;
                 }
-            } else {
-                stopping(threadRecordingStreams);
-                threadConvert.stop();
-                break;
             }
-        }
+        });
+        runForSleep.setName("run-recoding");
+        runForSleep.start();
     }
 
     private static void runForSleep(Integer hour, String cmd) {
