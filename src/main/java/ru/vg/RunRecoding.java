@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static ru.vg.util.HelperProperties.getCamerasName;
+import static ru.vg.util.HelperProperties.*;
 
 @Service
 public class RunRecoding implements InitializingBean {
@@ -76,13 +76,14 @@ public class RunRecoding implements InitializingBean {
 
     private static void convertArchiveAndDeleted() {
         try {
-            while (true) {
-                if (LocalDateTime.now().getHour() == 0) {
+            while (runAutoConvertAndArchive()) {
+                if (LocalDateTime.now().getHour() == runAutoConvertAndArchiveHour()) {
                     ConvertImageInVideo.runConvert();
                     ZipDir.runZip();
                     DeleteImageWithCheckZip.runDeleteImageWithCheckZip();
+                    HelperThread.sleep(23 * 3600_000 + 25 * 60_000);
                 }
-                HelperThread.sleep(3600_000);
+                HelperThread.sleep(60_000);
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);

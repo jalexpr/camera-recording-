@@ -34,7 +34,16 @@ public class HelperProperties {
     public static synchronized String getCameraNameForDir(String camNameInProperties) {
         return getProperties().getString("propt." + camNameInProperties + ".name");
     }
+
     public static synchronized Boolean isConvertOnlyCurrentDay() {
         return Boolean.valueOf(getProperties().getString("is.convert.only.current.day"));
+    }
+
+    public static synchronized Boolean runAutoConvertAndArchive() {
+        return Boolean.valueOf(getProperties().getString("run.auto.convert.and.archive"));
+    }
+
+    public static synchronized Integer runAutoConvertAndArchiveHour() {
+        return Integer.valueOf(getProperties().getString("run.auto.convert.and.archive.hour"));
     }
 }
